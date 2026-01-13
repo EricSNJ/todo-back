@@ -5,11 +5,22 @@ const Todo = require('../models/Todo');
 // 할일 목록 조회 라우터
 router.get('/', async (req, res) => {
   try {
+    // MongoDB 연결 상태 확인
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ 
+        error: '데이터베이스 연결이 되지 않았습니다.',
+        readyState: mongoose.connection.readyState 
+      });
+    }
+    
     const todos = await Todo.find().sort({ createdAt: -1 });
     res.status(200).json(todos);
   } catch (error) {
     console.error('할일 목록 조회 오류:', error);
-    res.status(500).json({ error: '할일 목록 조회 중 오류가 발생했습니다.' });
+    res.status(500).json({ 
+      error: '할일 목록 조회 중 오류가 발생했습니다.',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 

@@ -14,15 +14,23 @@ const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/todo-app';
 console.log('MONGO_URI:', MONGO_URI ? '설정됨' : '설정 안됨');
 console.log('MongoDB 연결 시도:', MONGO_URI);
 
-mongoose.connect(MONGO_URI, {
-  // 최신 mongoose 버전 호환성을 위한 옵션
-})
+mongoose.connect(MONGO_URI)
   .then(() => {
     console.log('MongoDB 연결 성공');
   })
   .catch((error) => {
     console.error('MongoDB 연결 오류:', error);
+    console.error('연결 URI:', MONGO_URI ? '설정됨' : '설정 안됨');
   });
+
+// MongoDB 연결 이벤트 리스너
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB 연결 에러:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.warn('MongoDB 연결이 끊어졌습니다.');
+});
 
 // Express 미들웨어
 app.use(cors());
