@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const Todo = require('../models/Todo');
 
 // 할일 목록 조회 라우터
@@ -17,9 +18,11 @@ router.get('/', async (req, res) => {
     res.status(200).json(todos);
   } catch (error) {
     console.error('할일 목록 조회 오류:', error);
+    console.error('에러 상세:', error.stack);
     res.status(500).json({ 
       error: '할일 목록 조회 중 오류가 발생했습니다.',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env.NODE_ENV !== 'production' ? error.message : undefined,
+      readyState: mongoose.connection.readyState
     });
   }
 });
